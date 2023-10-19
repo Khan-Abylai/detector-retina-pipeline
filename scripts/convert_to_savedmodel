@@ -1,0 +1,4 @@
+tensorflow==2.8.0
+onnx_tf==1.9.0
+# command to convert onnx to tensorflow saved model
+onnx-tf convert -i weights/PlateDetector_mobilenet.onnx -o weights/PlateDetector_mobilenet.pb
