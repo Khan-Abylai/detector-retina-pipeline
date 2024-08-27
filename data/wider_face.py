@@ -30,7 +30,9 @@ class WiderFaceDetection(data.Dataset):
                 self.imgs_path.append(path)
             else:
                 line = line.split(' ')
-                label = [float(x) for x in line]
+                label = [float(x) for x in line[:-1]]  # Все кроме последнего элемента
+                class_id = int(line[-1])  # Последний элемент - идентификатор класса
+                label.append(class_id)
                 labels.append(label)
 
         self.words.append(labels)
@@ -58,18 +60,15 @@ class WiderFaceDetection(data.Dataset):
                 # landmarks
                 annotation[0, 4] = label[4]    # l0_x
                 annotation[0, 5] = label[5]    # l0_y
-                annotation[0, 6] = label[7]    # l1_x
-                annotation[0, 7] = label[8]    # l1_y
-                annotation[0, 8] = label[10]   # l2_x
-                annotation[0, 9] = label[11]   # l2_y
-                annotation[0, 10] = label[13]  # l3_x
-                annotation[0, 11] = label[14]  # l3_y
-                annotation[0, 12] = label[16]  # l4_x
-                annotation[0, 13] = label[17]  # l4_y
-                if (annotation[0, 4]<0):
-                    annotation[0, 14] = -1
-                else:
-                    annotation[0, 14] = 1
+                annotation[0, 6] = label[6]    # l1_x
+                annotation[0, 7] = label[7]    # l1_y
+                annotation[0, 8] = label[8]   # l2_x
+                annotation[0, 9] = label[9]   # l2_y
+                annotation[0, 10] = label[10]  # l3_x
+                annotation[0, 11] = label[11]  # l3_y
+                annotation[0, 12] = label[12]  # l4_x
+                annotation[0, 13] = label[13]  # l4_y
+                annotation[0, 14] = label[-1]  # class_id
 
                 annotations = np.append(annotations, annotation, axis=0)
             target = np.array(annotations)

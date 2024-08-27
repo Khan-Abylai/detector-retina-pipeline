@@ -12,16 +12,17 @@ from models.net import SSH as SSH
 
 
 class ClassHead(nn.Module):
-    def __init__(self,inchannels=512,num_anchors=3):
+    def __init__(self,inchannels=512,num_anchors=3,num_classes=3):
         super(ClassHead,self).__init__()
         self.num_anchors = num_anchors
-        self.conv1x1 = nn.Conv2d(inchannels,self.num_anchors*2,kernel_size=(1,1),stride=1,padding=0)
+        self.num_classes = num_classes
+        self.conv1x1 = nn.Conv2d(inchannels,self.num_anchors*self.num_classes,kernel_size=(1,1),stride=1,padding=0)
 
     def forward(self,x):
         out = self.conv1x1(x)
         out = out.permute(0,2,3,1).contiguous()
         
-        return out.view(out.shape[0], -1, 2)
+        return out.view(out.shape[0], -1, self.num_classes)
 
 class BboxHead(nn.Module):
     def __init__(self,inchannels=512,num_anchors=3):
@@ -82,14 +83,19 @@ class RetinaFace(nn.Module):
         self.ssh2 = SSH(out_channels, out_channels)
         self.ssh3 = SSH(out_channels, out_channels)
 
-        self.ClassHead = self._make_class_head(fpn_num=3, inchannels=cfg['out_channel'])
+        # Изменить количество классов
+        self.num_classes = 3  # 2 класса объектов + 1 фоновый класс
+        
+        # Обновить ClassHead для поддержки нового количества классов
+        self.ClassHead = self._make_class_head(fpn_num=3, inchannels=cfg['out_channel'], num_classes=self.num_classes)
+        
         self.BboxHead = self._make_bbox_head(fpn_num=3, inchannels=cfg['out_channel'])
         self.LandmarkHead = self._make_landmark_head(fpn_num=3, inchannels=cfg['out_channel'])
 
-    def _make_class_head(self,fpn_num=3,inchannels=64,anchor_num=2):
+    def _make_class_head(self,fpn_num=3,inchannels=64,anchor_num=2, num_classes=3):
         classhead = nn.ModuleList()
         for i in range(fpn_num):
-            classhead.append(ClassHead(inchannels,anchor_num))
+            classhead.append(ClassHead(inchannels, anchor_num, num_classes=num_classes))
         return classhead
     
     def _make_bbox_head(self,fpn_num=3,inchannels=64,anchor_num=2):

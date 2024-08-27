@@ -14,16 +14,16 @@ import math
 from models.retinaface import RetinaFace
 
 parser = argparse.ArgumentParser(description='Retinaface Training')
-parser.add_argument('--training_dataset', default='/mnt_sda1/sng_eu/retina_label/labels.txt', help='Training dataset directory')
+parser.add_argument('--training_dataset', default='/mnt/data/retina_label.txt', help='Training dataset directory')
 parser.add_argument('--network', default='mobile0.25', help='Backbone network mobile0.25 or resnet50')
 parser.add_argument('--num_workers', default=16, type=int, help='Number of workers used in dataloading')
 parser.add_argument('--lr', '--learning-rate', default=1e-3, type=float, help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
-parser.add_argument('--resume_net', default="/mnt_sda1/sng_eu/weights_detection_retina/mobilenet0.25_epoch_4.pth", help='resume net for retraining')
-parser.add_argument('--resume_epoch', default=4, type=int, help='resume iter for retraining')
+parser.add_argument('--resume_net', help='resume net for retraining')
+parser.add_argument('--resume_epoch', default=0, type=int, help='resume iter for retraining')
 parser.add_argument('--weight_decay', default=5e-4, type=float, help='Weight decay for SGD')
 parser.add_argument('--gamma', default=0.1, type=float, help='Gamma update for SGD')
-parser.add_argument('--save_folder', default='/mnt_sda1/sng_eu/weights_detection_retina/', help='Location to save checkpoint models')
+parser.add_argument('--save_folder', default='/mnt/data/weights/retina_model/', help='Location to save checkpoint models')
 
 args = parser.parse_args()
 
@@ -38,7 +38,7 @@ elif args.network == "resnet50":
     cfg = cfg_re50
 
 rgb_mean = (104, 117, 123) # bgr order
-num_classes = 2
+num_classes = 3  # 2 класса объектов + 1 фоновый класс
 img_dim = cfg['image_size']
 num_gpu = cfg['ngpu']
 batch_size = cfg['batch_size']
